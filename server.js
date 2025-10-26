@@ -27,7 +27,7 @@ const personSchema = new mongoose.Schema({
   connections: [String]
 });
 
-const Person = mongoose.model('Person', personSchema);
+const Person = mongoose.model('Person', personSchema, 'people');
 
 // Routes
 app.get('/api/person/:name', async (req, res) => {
