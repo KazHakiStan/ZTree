@@ -29,6 +29,16 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema, 'people');
 
+// Get all people (for testing)
+app.get('/api/people', async (req, res) => {
+  try {
+    const people = await Person.find({});
+    res.json(people);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Routes
 app.get('/api/person/:name', async (req, res) => {
   try {
