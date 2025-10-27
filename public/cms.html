@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genealogy CMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            height: 80vh;
+        }
+        
+        .panel {
+            background: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .main-person {
+            border: 2px solid #4facfe;
+        }
+        
+        .connections {
+            border: 2px solid #00f2fe;
+        }
+        
+        .available-people {
+            border: 2px solid #ff6b6b;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            color: #4facfe;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        
+        .person-card {
+            background: #3d3d3d;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: move;
+            border: 1px solid #555;
+            transition: all 0.3s ease;
+        }
+        
+        .person-card:hover {
+            background: #4d4d4d;
+            transform: translateY(-2px);
+        }
+        
+        .person-card.connected {
+            background: #2d4d2d;
+            border-color: #00ff00;
+        }
+        
+        .person-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .person-relation {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .person-location {
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        .drag-over {
+            background: #4d4d4d;
+            border: 2px dashed #4facfe;
+        }
+        
+        .remove-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+        
+        .remove-btn:hover {
+            background: #ff5252;
+        }
+        
+        .status {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4facfe;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .add-person-form {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 10px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background: #3d3d3d;
+            color: white;
+        }
+        
+        button {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #00f2fe;
+        }
+    </style>
+</head>
+<body>
+    <h1>Genealogy Connection Manager</h1>
+    
+    <div class="add-person-form">
+        <h3>Add New Person</h3>
+        <div class="form-group">
+            <input type="text" id="newName" placeholder="Name">
+        </div>
+        <div class="form-group">
+            <select id="newRelation">
+                <option value="self">Self</option>
+                <option value="mother">Mother</option>
+                <option value="father">Father</option>
+                <option value="friend">Friend</option>
+                <option value="family">Family</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="number" id="newLat" placeholder="Latitude" step="0.0001">
+            <input type="number" id="newLon" placeholder="Longitude" step="0.0001">
+        </div>
+        <button onclick="addNewPerson()">Add Person</button>
+    </div>
+    
+    <div class="container">
+        <div class="panel main-person" id="mainPersonPanel" ondrop="dropOnMainPerson(event)" ondragover="allowDrop(event)">
+            <h2>Selected Person</h2>
+            <div id="mainPersonContent"></div>
+        </div>
+        
+        <div class="panel connections" id="connectionsPanel" ondrop="dropOnConnections(event)" ondragover="allowDrop(event)">
+            <h2>Connections</h2>
+            <div id="connectionsContent"></div>
+        </div>
+        
+        <div class="panel available-people">
+            <h2>All People</h2>
+            <div id="availablePeopleContent"></div>
+        </div>
+    </div>
+    
+    <div class="status" id="status"></div>
+
+    <script>
+        const API_BASE_URL = 'https://ztree.onrender.com';
+        let allPeople = [];
+        let selectedPerson = null;
+
+        // Load all people
+        async function loadAllPeople() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/people`);
+                allPeople = await response.json();
+                renderAvailablePeople();
+            } catch (error) {
+                showStatus('Error loading people: ' + error.message, 'error');
+            }
+        }
+
+        // Render available people (right panel)
+        function renderAvailablePeople() {
+            const container = document.getElementById('availablePeopleContent');
+            container.innerHTML = '';
+            
+            allPeople.forEach(person => {
+                const card = document.createElement('div');
+                card.className = 'person-card';
+                card.draggable = true;
+                card.setAttribute('data-name', person.name);
+                card.ondragstart = drag;
+                card.onclick = () => selectPerson(person.name);
+                
+                card.innerHTML = `
+                    <div class="person-name">${person.name}</div>
+                    <div class="person-relation">${person.relation}</div>
+                    <div class="person-location">${person.location.lat.toFixed(4)}, ${person.location.lon.toFixed(4)}</div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Select a person (left panel)
+        async function selectPerson(name) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/person/${encodeURIComponent(name)}`);
+                const data = await response.json();
+                selectedPerson = data.mainPerson;
+                
+                renderMainPerson();
+                renderConnections(data.connections);
+            } catch (error) {
+                showStatus('Error loading person: ' + error.message, 'error');
+            }
+        }
+
+        // Render main person (left panel)
+        function renderMainPerson() {
+            const container = document.getElementById('mainPersonContent');
+            if (!selectedPerson) {
+                container.innerHTML = '<p>Select a person from the right panel</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="person-card">
+                    <div class="person-name">${selectedPerson.name}</div>
+                    <div class="person-relation">${selectedPerson.relation}</div>
+                    <div class="person-location">${selectedPerson.location.lat.toFixed(4)}, ${selectedPerson.location.lon.toFixed(4)}</div>
+                </div>
+            `;
+        }
+
+        // Render connections (middle panel)
+        function renderConnections(connections) {
+            const container = document.getElementById('connectionsContent');
+            container.innerHTML = '';
+            
+            if (!connections || connections.length === 0) {
+                container.innerHTML = '<p>No connections yet. Drag people from the right panel.</p>';
+                return;
+            }
+            
+            connections.forEach(person => {
+                const card = document.createElement('div');
+                card.className = 'person-card connected';
+                card.setAttribute('data-name', person.name);
+                
+                card.innerHTML = `
+                    <div class="person-name">${person.name}</div>
+                    <div class="person-relation">${person.relation}</div>
+                    <div class="person-location">${person.location.lat.toFixed(4)}, ${person.location.lon.toFixed(4)}</div>
+                    <button class="remove-btn" onclick="removeConnection('${person.name}')">Remove</button>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Drag and drop functions
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.getAttribute('data-name'));
+        }
+
+        function dropOnConnections(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            
+            if (!selectedPerson) {
+                showStatus('Please select a person first', 'error');
+                return;
+            }
+            
+            const personName = ev.dataTransfer.getData("text");
+            addConnection(selectedPerson.name, personName);
+        }
+
+        function dropOnMainPerson(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            
+            const personName = ev.dataTransfer.getData("text");
+            selectPerson(personName);
+        }
+
+        // Add connection
+        async function addConnection(mainPersonName, connectionName) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/person/${encodeURIComponent(mainPersonName)}/connections`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ connectionName })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus(`Added connection: ${connectionName}`, 'success');
+                    // Refresh the view
+                    selectPerson(mainPersonName);
+                    loadAllPeople();
+                } else {
+                    showStatus('Failed to add connection', 'error');
+                }
+            } catch (error) {
+                showStatus('Error adding connection: ' + error.message, 'error');
+            }
+        }
+
+        // Remove connection
+        async function removeConnection(connectionName) {
+            if (!selectedPerson) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/person/${encodeURIComponent(selectedPerson.name)}/connections/${encodeURIComponent(connectionName)}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus(`Removed connection: ${connectionName}`, 'success');
+                    // Refresh the view
+                    selectPerson(selectedPerson.name);
+                    loadAllPeople();
+                } else {
+                    showStatus('Failed to remove connection', 'error');
+                }
+            } catch (error) {
+                showStatus('Error removing connection: ' + error.message, 'error');
+            }
+        }
+
+        // Add new person
+        async function addNewPerson() {
+            const name = document.getElementById('newName').value;
+            const relation = document.getElementById('newRelation').value;
+            const lat = parseFloat(document.getElementById('newLat').value);
+            const lon = parseFloat(document.getElementById('newLon').value);
+            
+            if (!name || !relation || isNaN(lat) || isNaN(lon)) {
+                showStatus('Please fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/people`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name,
+                        relation,
+                        location: { lat, lon }
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus(`Added new person: ${name}`, 'success');
+                    // Clear form
+                    document.getElementById('newName').value = '';
+                    document.getElementById('newLat').value = '';
+                    document.getElementById('newLon').value = '';
+                    // Refresh data
+                    loadAllPeople();
+                } else {
+                    showStatus(result.error, 'error');
+                }
+            } catch (error) {
+                showStatus('Error adding person: ' + error.message, 'error');
+            }
+        }
+
+        // Status messages
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.style.display = 'block';
+            status.style.background = type === 'error' ? '#ff6b6b' : '#4facfe';
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+
+        // Remove drag-over class when drag leaves
+        document.addEventListener('dragleave', (ev) => {
+            if (ev.target.classList.contains('panel')) {
+                ev.target.classList.remove('drag-over');
+            }
+        });
+
+        // Initialize
+        loadAllPeople();
+    </script>
+</body>
+</html>
