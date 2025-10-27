@@ -5,157 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Genealogy CMS</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: #1a1a1a;
-            color: #fff;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 300px 1fr 300px;
-            gap: 20px;
-            height: 80vh;
-        }
-        
-        .panel {
-            background: #2d2d2d;
-            border-radius: 10px;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .main-person {
-            border: 2px solid #4facfe;
-        }
-        
-        .connections {
-            border: 2px solid #00f2fe;
-        }
-        
-        .available-people {
-            border: 2px solid #ff6b6b;
-        }
-        
-        h2 {
-            margin-bottom: 15px;
-            color: #4facfe;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-        }
-        
-        .person-card {
-            background: #3d3d3d;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            cursor: move;
-            border: 1px solid #555;
-            transition: all 0.3s ease;
-        }
-        
-        .person-card:hover {
-            background: #4d4d4d;
-            transform: translateY(-2px);
-        }
-        
-        .person-card.connected {
-            background: #2d4d2d;
-            border-color: #00ff00;
-        }
-        
-        .person-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-        }
-        
-        .person-relation {
-            color: #aaa;
-            font-size: 0.9rem;
-        }
-        
-        .person-location {
-            color: #888;
-            font-size: 0.8rem;
-            margin-top: 5px;
-        }
-        
-        .drag-over {
-            background: #4d4d4d;
-            border: 2px dashed #4facfe;
-        }
-        
-        .remove-btn {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 8px;
-            font-size: 0.8rem;
-        }
-        
-        .remove-btn:hover {
-            background: #ff5252;
-        }
-        
-        .status {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #4facfe;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            display: none;
-        }
-        
-        .add-person-form {
-            background: #2d2d2d;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 10px;
-        }
-        
-        input, select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #555;
-            border-radius: 4px;
-            background: #3d3d3d;
-            color: white;
-        }
-        
-        button {
-            background: #4facfe;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        
-        button:hover {
-            background: #00f2fe;
-        }
+        /* All the CSS from previous response */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #1a1a1a; color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; height: 80vh; }
+        .panel { background: #2d2d2d; border-radius: 10px; padding: 20px; overflow-y: auto; }
+        .main-person { border: 2px solid #4facfe; }
+        .connections { border: 2px solid #00f2fe; }
+        .available-people { border: 2px solid #ff6b6b; }
+        h2 { margin-bottom: 15px; color: #4facfe; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .person-card { background: #3d3d3d; padding: 15px; margin-bottom: 10px; border-radius: 8px; cursor: move; border: 1px solid #555; transition: all 0.3s ease; }
+        .person-card:hover { background: #4d4d4d; transform: translateY(-2px); }
+        .person-card.connected { background: #2d4d2d; border-color: #00ff00; }
+        .person-card.editing { background: #4d4d2d; border-color: #ffff00; }
+        .person-name { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+        .person-relation { color: #aaa; font-size: 0.9rem; }
+        .person-location { color: #888; font-size: 0.8rem; margin-top: 5px; }
+        .drag-over { background: #4d4d4d; border: 2px dashed #4facfe; }
+        .btn { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; margin-top: 8px; font-size: 0.8rem; margin-right: 5px; }
+        .remove-btn { background: #ff6b6b; color: white; }
+        .remove-btn:hover { background: #ff5252; }
+        .edit-btn { background: #ffa726; color: white; }
+        .edit-btn:hover { background: #ff9800; }
+        .save-btn { background: #4caf50; color: white; }
+        .save-btn:hover { background: #45a049; }
+        .cancel-btn { background: #757575; color: white; }
+        .cancel-btn:hover { background: #616161; }
+        .delete-btn { background: #d32f2f; color: white; }
+        .delete-btn:hover { background: #c62828; }
+        .status { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4facfe; color: white; padding: 10px 20px; border-radius: 5px; display: none; z-index: 1000; }
+        .add-person-form, .edit-person-form { background: #2d2d2d; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 10px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #555; border-radius: 4px; background: #3d3d3d; color: white; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { background: #4facfe; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-right: 10px; }
+        button:hover { background: #00f2fe; }
+        .edit-form { margin-top: 10px; padding: 10px; background: #3d3d3d; border-radius: 5px; }
+        .edit-form input { margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -173,9 +59,14 @@
                 <option value="father">Father</option>
                 <option value="friend">Friend</option>
                 <option value="family">Family</option>
+                <option value="grandmother">Grandmother</option>
+                <option value="grandfather">Grandfather</option>
+                <option value="uncle">Uncle</option>
+                <option value="aunt">Aunt</option>
+                <option value="cousin">Cousin</option>
             </select>
         </div>
-        <div class="form-group">
+        <div class="form-group form-row">
             <input type="number" id="newLat" placeholder="Latitude" step="0.0001">
             <input type="number" id="newLon" placeholder="Longitude" step="0.0001">
         </div>
@@ -202,9 +93,10 @@
     <div class="status" id="status"></div>
 
     <script>
-        const API_BASE_URL = 'https://ztree.onrender.com';
+        const API_BASE_URL = window.location.origin;
         let allPeople = [];
         let selectedPerson = null;
+        let editingPerson = null;
 
         // Load all people
         async function loadAllPeople() {
@@ -224,17 +116,47 @@
             
             allPeople.forEach(person => {
                 const card = document.createElement('div');
-                card.className = 'person-card';
+                card.className = 'person-card' + (editingPerson && editingPerson.name === person.name ? ' editing' : '');
                 card.draggable = true;
                 card.setAttribute('data-name', person.name);
                 card.ondragstart = drag;
                 card.onclick = () => selectPerson(person.name);
                 
-                card.innerHTML = `
-                    <div class="person-name">${person.name}</div>
-                    <div class="person-relation">${person.relation}</div>
-                    <div class="person-location">${person.location.lat.toFixed(4)}, ${person.location.lon.toFixed(4)}</div>
-                `;
+                if (editingPerson && editingPerson.name === person.name) {
+                    // Edit mode
+                    card.innerHTML = `
+                        <div class="edit-form">
+                            <input type="text" id="editName_${person.name}" value="${person.name}" placeholder="Name">
+                            <select id="editRelation_${person.name}">
+                                <option value="self" ${person.relation === 'self' ? 'selected' : ''}>Self</option>
+                                <option value="mother" ${person.relation === 'mother' ? 'selected' : ''}>Mother</option>
+                                <option value="father" ${person.relation === 'father' ? 'selected' : ''}>Father</option>
+                                <option value="friend" ${person.relation === 'friend' ? 'selected' : ''}>Friend</option>
+                                <option value="family" ${person.relation === 'family' ? 'selected' : ''}>Family</option>
+                                <option value="grandmother" ${person.relation === 'grandmother' ? 'selected' : ''}>Grandmother</option>
+                                <option value="grandfather" ${person.relation === 'grandfather' ? 'selected' : ''}>Grandfather</option>
+                                <option value="uncle" ${person.relation === 'uncle' ? 'selected' : ''}>Uncle</option>
+                                <option value="aunt" ${person.relation === 'aunt' ? 'selected' : ''}>Aunt</option>
+                                <option value="cousin" ${person.relation === 'cousin' ? 'selected' : ''}>Cousin</option>
+                            </select>
+                            <div class="form-row">
+                                <input type="number" id="editLat_${person.name}" value="${person.location.lat}" step="0.0001" placeholder="Latitude">
+                                <input type="number" id="editLon_${person.name}" value="${person.location.lon}" step="0.0001" placeholder="Longitude">
+                            </div>
+                            <button class="btn save-btn" onclick="savePersonEdit('${person.name}')">Save</button>
+                            <button class="btn cancel-btn" onclick="cancelEdit()">Cancel</button>
+                            <button class="btn delete-btn" onclick="deletePerson('${person.name}')">Delete</button>
+                        </div>
+                    `;
+                } else {
+                    // View mode
+                    card.innerHTML = `
+                        <div class="person-name">${person.name}</div>
+                        <div class="person-relation">${person.relation}</div>
+                        <div class="person-location">${person.location.lat.toFixed(4)}, ${person.location.lon.toFixed(4)}</div>
+                        <button class="btn edit-btn" onclick="startEdit('${person.name}', event)">Edit</button>
+                    `;
+                }
                 
                 container.appendChild(card);
             });
@@ -267,6 +189,7 @@
                     <div class="person-name">${selectedPerson.name}</div>
                     <div class="person-relation">${selectedPerson.relation}</div>
                     <div class="person-location">${selectedPerson.location.lat.toFixed(4)}, ${selectedPerson.location.lon.toFixed(4)}</div>
+                    <button class="btn edit-btn" onclick="startEdit('${selectedPerson.name}', event)">Edit</button>
                 </div>
             `;
         }
@@ -290,11 +213,96 @@
                     <div class="person-name">${person.name}</div>
                     <div class="person-relation">${person.relation}</div>
                     <div class="person-location">${person.location.lat.toFixed(4)}, ${person.location.lon.toFixed(4)}</div>
-                    <button class="remove-btn" onclick="removeConnection('${person.name}')">Remove</button>
+                    <button class="btn remove-btn" onclick="removeConnection('${person.name}')">Remove</button>
                 `;
                 
                 container.appendChild(card);
             });
+        }
+
+        // Start editing a person
+        function startEdit(personName, event) {
+            event.stopPropagation();
+            editingPerson = allPeople.find(p => p.name === personName);
+            renderAvailablePeople();
+        }
+
+        // Save person edits
+        async function savePersonEdit(oldName) {
+            const newName = document.getElementById(`editName_${oldName}`).value;
+            const relation = document.getElementById(`editRelation_${oldName}`).value;
+            const lat = parseFloat(document.getElementById(`editLat_${oldName}`).value);
+            const lon = parseFloat(document.getElementById(`editLon_${oldName}`).value);
+            
+            if (!newName || !relation || isNaN(lat) || isNaN(lon)) {
+                showStatus('Please fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/person/${encodeURIComponent(oldName)}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: newName,
+                        relation,
+                        location: { lat, lon }
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus(`Updated person: ${newName}`, 'success');
+                    editingPerson = null;
+                    // Refresh data
+                    loadAllPeople();
+                    if (selectedPerson && selectedPerson.name === oldName) {
+                        selectPerson(newName);
+                    }
+                } else {
+                    showStatus(result.error, 'error');
+                }
+            } catch (error) {
+                showStatus('Error updating person: ' + error.message, 'error');
+            }
+        }
+
+        // Cancel editing
+        function cancelEdit() {
+            editingPerson = null;
+            renderAvailablePeople();
+        }
+
+        // Delete person
+        async function deletePerson(personName) {
+            if (!confirm(`Are you sure you want to delete ${personName}? This will also remove all their connections.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/person/${encodeURIComponent(personName)}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus(`Deleted person: ${personName}`, 'success');
+                    editingPerson = null;
+                    selectedPerson = null;
+                    // Refresh data
+                    loadAllPeople();
+                    renderMainPerson();
+                    renderConnections([]);
+                } else {
+                    showStatus('Failed to delete person', 'error');
+                }
+            } catch (error) {
+                showStatus('Error deleting person: ' + error.message, 'error');
+            }
         }
 
         // Drag and drop functions
