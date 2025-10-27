@@ -93,6 +93,44 @@ app.post('/api/person/:name/connections', async (req, res) => {
   }
 });
 
+// Update person - only modify specified fields
+app.put('/api/person/:name', async (req, res) => {
+  try {
+    const { name, relation, location } = req.body;
+    
+    const person = await Person.findOne({ name: req.params.name });
+    if (!person) {
+      return res.status(404).json({ error: 'Person not found' });
+    }
+
+    // Update only the fields that are provided
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (relation !== undefined) updates.relation = relation;
+    if (location !== undefined) updates.location = location;
+
+    // If name is being changed, update all references in connections
+    if (name && name !== req.params.name) {
+      // Update this person's name in all other people's connections
+      await Person.updateMany(
+        { connections: req.params.name },
+        { $set: { "connections.$[elem]": name } },
+        { arrayFilters: [{ "elem": req.params.name }] }
+      );
+    }
+
+    const updatedPerson = await Person.findOneAndUpdate(
+      { name: req.params.name },
+      { $set: updates },
+      { new: true } // Return the updated document
+    );
+
+    res.json({ success: true, person: updatedPerson });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Remove connection from person
 app.delete('/api/person/:name/connections/:connectionName', async (req, res) => {
   try {
@@ -132,6 +170,11 @@ app.post('/api/people', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// Serve CMS page
+app.get('/cms', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cms.html'));
 });
 
 app.listen(PORT, () => {
